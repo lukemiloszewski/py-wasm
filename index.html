@@ -1,169 +1,97 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8" />
-    <script src="https://cdn.jsdelivr.net/npm/jquery"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery.terminal@2.32.0/js/jquery.terminal.min.js"></script>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PY WASM</title>
     <link
-      href="https://cdn.jsdelivr.net/npm/jquery.terminal@2.32.0/css/jquery.terminal.min.css"
       rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.82/dist/themes/light.css"
     />
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.19.1/full/pyodide.js"></script>
-    <style>
-      .terminal {
-        --size: 1.5;
-        --color: rgba(255, 255, 255, 0.8);
-      }
-    </style>
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.82/dist/shoelace.js"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="./all.css"
+    />
+    <py-env>
+      - pandas
+      - matplotlib
+  </py-env>
   </head>
-  <body>
-    <script>
-      "use strict";
-      function sleep(s) {
-        return new Promise((resolve) => setTimeout(resolve, s));
-      }
+  <body class="small-container text-center"></bodyclass>
+    <div class="small-container text-center">
+      <h1>PY-WASM</h1>
+      <sl-divider style="--width: 2px"></sl-divider>
+      <div id="mpl" class="small-container"></div>
+      <py-script output="mpl">import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import matplotlib.gridspec as gridspec
 
-      async function main() {
-        globalThis.pyodide = await loadPyodide({
-          indexURL: "https://cdn.jsdelivr.net/pyodide/v0.19.1/full/",
-        });
-        let namespace = pyodide.globals.get("dict")();
-        pyodide.runPython(
-          `
-            import sys
-            from pyodide import to_js
-            from pyodide.console import PyodideConsole, repr_shorten, BANNER
-            import __main__
-            BANNER = "Welcome to the Pyodide terminal emulator 🐍\\n" + BANNER
-            pyconsole = PyodideConsole(__main__.__dict__)
-            import builtins
-            async def await_fut(fut):
-              res = await fut
-              if res is not None:
-                builtins._ = res
-              return to_js([res], depth=1)
-            def clear_console():
-              pyconsole.buffer = []
-        `,
-          namespace
-        );
-        let repr_shorten = namespace.get("repr_shorten");
-        let banner = namespace.get("BANNER");
-        let await_fut = namespace.get("await_fut");
-        let pyconsole = namespace.get("pyconsole");
-        let clear_console = namespace.get("clear_console");
-        namespace.destroy();
+fig, ax = plt.subplots(figsize = (5,4), dpi = 200)
 
-        let ps1 = ">>> ",
-          ps2 = "... ";
+data_1 = pd.Series([0, 1, 2, 3, 4, 5, 4, 3, 2, 1, 0, 1, 2, 3, 4, 5]).reset_index(drop=True)
+data_2 = pd.Series([5, 4, 3, 2, 1, 0, 1, 2, 3, 4, 5, 4, 3, 2, 1, 0]).reset_index(drop=True)
 
-        async function lock() {
-          let resolve;
-          let ready = term.ready;
-          term.ready = new Promise((res) => (resolve = res));
-          await ready;
-          return resolve;
-        }
+x_fill = pd.Series(range(len(data_1)))
 
-        async function interpreter(command) {
-          let unlock = await lock();
-          term.pause();
-          // multiline should be split (useful when pasting)
-          for (const c of command.split("\n")) {
-            let fut = pyconsole.push(c);
-            term.set_prompt(fut.syntax_check === "incomplete" ? ps2 : ps1);
-            switch (fut.syntax_check) {
-              case "syntax-error":
-                term.error(fut.formatted_error.trimEnd());
-                continue;
-              case "incomplete":
-                continue;
-              case "complete":
-                break;
-              default:
-                throw new Error(`Unexpected type ${ty}`);
-            }
-            // In JavaScript, await automatically also awaits any results of
-            // awaits, so if an async function returns a future, it will await
-            // the inner future too. This is not what we want so we
-            // temporarily put it into a list to protect it.
-            let wrapped = await_fut(fut);
-            // complete case, get result / error and print it.
-            try {
-              let [value] = await wrapped;
-              if (value !== undefined) {
-                term.echo(
-                  repr_shorten.callKwargs(value, {
-                    separator: "\n[[;orange;]<long output truncated>]\n",
-                  })
-                );
-              }
-              if (pyodide.isPyProxy(value)) {
-                value.destroy();
-              }
-            } catch (e) {
-              if (e.constructor.name === "PythonError") {
-                const message = fut.formatted_error || e.message;
-                term.error(message.trimEnd());
-              } else {
-                throw e;
-              }
-            } finally {
-              fut.destroy();
-              wrapped.destroy();
-            }
-          }
-          term.resume();
-          await sleep(10);
-          unlock();
-        }
+x_fill_aux = x_fill.copy()
+x_fill_aux.index = x_fill_aux.index * 10
+last_idx = x_fill_aux.index[-1] + 1
+x_fill_aux = x_fill_aux.reindex(range(last_idx))
+x_fill_aux = x_fill_aux.interpolate()
 
-        let term = $("body").terminal(interpreter, {
-          greetings: banner,
-          prompt: ps1,
-          completionEscape: false,
-          completion: function (command, callback) {
-            callback(pyconsole.complete(command).toJs()[0]);
-          },
-          keymap: {
-            "CTRL+C": async function (event, original) {
-              clear_console();
-              term.enter();
-              term.echo("KeyboardInterrupt");
-              term.set_command("");
-              term.set_prompt(ps1);
-            },
-            TAB: (event, original) => {
-              const command = term.before_cursor();
-              // Disable completion for whitespaces.
-              if (command.trim() === "") {
-                term.insert("\t");
-                return false;
-              }
-              return original(event);
-            },
-          },
-        });
-        window.term = term;
-        pyconsole.stdout_callback = (s) => term.echo(s, { newline: false });
-        pyconsole.stderr_callback = (s) => {
-          term.error(s.trimEnd());
-        };
-        term.ready = Promise.resolve();
-        pyodide._api.on_fatal = async (e) => {
-          term.error(
-            "Pyodide has suffered a fatal error. Please report this to the Pyodide maintainers."
-          );
-          term.error("The cause of the fatal error was:");
-          term.error(e);
-          term.error("Look in the browser console for more details.");
-          await term.ready;
-          term.pause();
-          await sleep(15);
-          term.pause();
-        };
-      }
-      window.console_ready = main();
-    </script>
+data_1_aux = data_1.copy()
+data_1_aux.index = data_1_aux.index * 10
+last_idx = data_1_aux.index[-1] + 1
+data_1_aux = data_1_aux.reindex(range(last_idx))
+data_1_aux = data_1_aux.interpolate()
+
+data_2_aux = data_2.copy()
+data_2_aux.index = data_2_aux.index * 10
+last_idx = data_2_aux.index[-1] + 1
+data_2_aux = data_2_aux.reindex(range(last_idx))
+data_2_aux = data_2_aux.interpolate()
+
+plot_1 = ax.plot(x_fill, data_1, marker="o", mfc="white", ms=4, color="#87D8F7")
+plot_2 = ax.plot(x_fill, data_2, marker="o", mfc="white", ms=4, color="#15366F")
+
+for index in range(len(x_fill_aux) - 1):
+    if data_1_aux.iloc[index + 1] > data_2_aux.iloc[index + 1]:
+        color = plot_1[0].get_color()
+    else:
+        color = plot_2[0].get_color()
+
+    ax.fill_between(
+        [x_fill_aux[index], x_fill_aux[index + 1]],
+        [data_1_aux.iloc[index], data_1_aux.iloc[index + 1]],
+        [data_2_aux.iloc[index], data_2_aux.iloc[index + 1]],
+        color=color,
+        zorder=2,
+        alpha=0.2,
+        ec=None,
+    )
+
+ax.grid(ls="--", lw=0.25, color="#4E616C")
+
+ax.spines["top"].set_visible(False)
+ax.spines["bottom"].set_edgecolor("#4E616C")
+ax.spines["left"].set_visible(False)
+ax.spines["right"].set_visible(False)
+
+ax.set_ylim(0)
+ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
+ax.xaxis.set_tick_params(length=2, color="#4E616C", labelcolor="#4E616C", labelsize=6)
+ax.yaxis.set_tick_params(length=2, color="#4E616C", labelcolor="#4E616C", labelsize=6)
+
+plt.tight_layout()
+fig
+  </py-script>
+    </div>
   </body>
 </html>
