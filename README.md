@@ -13,6 +13,12 @@ PyScript provides a thin layer of abstraction on top of Pyodide, encapsulating t
 
 ## Usage
 
+### Installation
+
+Pyscript is bundled as a `js` script and `css` file that need to be referenced from your web application. These files can be installed locally or linked via a CDN. Visit [pyscript.net](https://pyscript.net) for the latest release.
+
+### Development
+
 To run locally, start a server in your project directory:
 
 ```shell
@@ -20,3 +26,16 @@ python -m http.server
 ```
 
 * this allows you to load Python scripts from external files while opening the page locally, which would otherwise be blocked by the cross-origin resource sharing (CORS) policy enforced by web browsers
+
+### Web Components
+
+PyScript exposes useful [web components](https://github.com/pyscript/pyscript/blob/main/docs/tutorials/getting-started.md) to more easily build and interact with Python in the browser.
+
+* `<py-script>`
+* `<py-env>`
+* `<py-repl>`
+* `<py-config>`
+* `<py-inputbox>`
+* `<py-box>`
+* `<py-button>`
+* `<py-title>`
