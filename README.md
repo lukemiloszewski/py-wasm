@@ -1,4 +1,4 @@
-<h1 align="center">Python WASM</h1>
+<h1 align="center">PY Wasm</h1>
 <p align="center">Python in the browser with WebAssembly 👾</p>
 
 ## Overview
