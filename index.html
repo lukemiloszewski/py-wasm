@@ -7,19 +7,20 @@
 
     <title>PY WASM</title>
 
+    <!-- Stylesheets -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.82/dist/themes/light.css"
     />
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <link rel="stylesheet" href="./styles/main.css" />
+
+    <!-- Scripts -->
     <script
       type="module"
       src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.82/dist/shoelace.js"
     ></script>
-
-    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
     <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
-
-    <link rel="stylesheet" href="./main.css" />
 
     <!-- prettier-ignore -->
     <py-env> 
@@ -29,51 +30,121 @@
   </head>
   <body class="small-container">
     <div class="small-container">
-      <h1>PY-WASM</h1>
+      <h1 class="text-center">PY-WASM</h1>
       <hr />
       <p>
-        PyScript wouldn’t be possible without building on top of a recent
-        version of Pyodide—a CPython interpreter compiled with emscripten to
-        WebAssembly, enabling Python to run in the browser. PyScript provides a
-        thin abstraction layer over Pyodide by encapsulating the required
-        boilerplate code, which you’d otherwise have to type yourself using
-        JavaScript.
+        PyScript uses Pyodide, a CPython interpreter compiled with emscripten to
+        WebAssembly. This allows you to run Python in the browser! 🐍
       </p>
 
       <sl-details summary="REPL">
-        <py-repl id="demo-repl" auto-generate="true"></py-repl>
+        <sl-tab-group>
+          <sl-tab slot="nav" panel="shell">Shell</sl-tab>
+          <sl-tab slot="nav" panel="shortcuts">Shortcuts</sl-tab>
+          <sl-tab-panel name="shell">
+            <py-repl id="repl" auto-generate="true"></py-repl>
+          </sl-tab-panel>
+          <sl-tab-panel name="shortcuts">
+            <table class="striped-table">
+              <tr>
+                <th>Action</th>
+                <th>macOS</th>
+                <th>Win/Linux</th>
+              </tr>
+              <tr>
+                <td>Run Cell</td>
+                <td>Shift+Enter</td>
+                <td>Shift+Enter</td>
+              </tr>
+              <tr>
+                <td>Search</td>
+                <td>Cmd+F</td>
+                <td>Ctrl+F</td>
+              </tr>
+              <tr>
+                <td>Select Scope</td>
+                <td>Cmd+I</td>
+                <td>Ctrl+I</td>
+              </tr>
+              <tr>
+                <td>Select Line</td>
+                <td>Ctrl+L</td>
+                <td>Alt+L</td>
+              </tr>
+
+              <tr>
+                <td>Delete Line</td>
+                <td>Cmd+Shift+K</td>
+                <td>Ctrl+Shift+K</td>
+              </tr>
+              <tr>
+                <td>Insert Line Below</td>
+                <td>Cmd+Enter</td>
+                <td>Ctrl+Enter</td>
+              </tr>
+              <tr>
+                <td>Move Selection Up</td>
+                <td>Alt+Up</td>
+                <td>Alt+Up</td>
+              </tr>
+              <tr>
+                <td>Move Selection Down</td>
+                <td>Alt+Down</td>
+                <td>Alt+Down</td>
+              </tr>
+              <tr>
+                <td>Go to Matching Bracket</td>
+                <td>Cmd+Shift+\</td>
+                <td>Ctrl+Shift+\</td>
+              </tr>
+              <tr>
+                <td>Indent</td>
+                <td>Cmd+]</td>
+                <td>Ctrl+]</td>
+              </tr>
+              <tr>
+                <td>Dedent</td>
+                <td>Cmd+[</td>
+                <td>Ctrl+[</td>
+              </tr>
+            </table>
+          </sl-tab-panel>
+        </sl-tab-group>
       </sl-details>
 
       <sl-details summary="Examples">
-        All the source code for these examples may be copied and pasted into the
-        REPL above.
-        <sl-details summary="Charting">
-          This example demonstrated using matplotlib and pandas to generate a
-          visually intricate line plot using dummy data.
-          <sl-tab-group>
-            <sl-tab slot="nav" panel="general">Output</sl-tab>
-            <sl-tab slot="nav" panel="custom">Source</sl-tab>
+        <p>The source code for these examples can be run in the REPL above.</p>
 
-            <sl-tab-panel name="general">
+        <sl-details summary="📊 Plots" class="example-sl-details">
+          <p>
+            This example demonstrates the use of <b>matplotlib</b> and
+            <b>pandas</b> to generate a visually-intricate line plot using dummy
+            data.
+          </p>
+          <sl-tab-group>
+            <sl-tab slot="nav" panel="output">Output</sl-tab>
+            <sl-tab slot="nav" panel="source">Source</sl-tab>
+            <sl-tab-panel name="output">
               <div id="example_1" class="small-container"></div>
               <py-script
                 output="example_1"
                 src="./src/example_1.py"
               ></py-script>
             </sl-tab-panel>
-
-            <sl-tab-panel name="custom">
+            <sl-tab-panel name="source">
               <sl-include src="./src/example_1.html"></sl-include>
             </sl-tab-panel>
           </sl-tab-group>
         </sl-details>
       </sl-details>
-
-      <style>
-        sl-details {
-          margin-bottom: var(--sl-spacing-2x-small);
-        }
-      </style>
     </div>
+    <style>
+      sl-details:not(.example-sl-details) {
+        margin-bottom: 1.5rem;
+      }
+      py-repl {
+        margin-bottom: 1.5rem;
+      }
+    </style>
   </body>
 </html>
