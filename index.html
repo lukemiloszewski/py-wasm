@@ -45,37 +45,35 @@
       </sl-details>
 
       <sl-details summary="Examples">
-        <div class="details-group-example">
-          <sl-details summary="Output">
-            <div id="plot_1" class="small-container"></div>
-            <py-script output="plot_1" src="./src/plot.py"></py-script>
-          </sl-details>
-          <sl-details summary="Source">
-            <sl-include src="./src/example_2.html"></sl-include>
-          </sl-details>
-        </div>
+        All the source code for these examples may be copied and pasted into the
+        REPL above.
+        <sl-details summary="Charting">
+          This example demonstrated using matplotlib and pandas to generate a
+          visually intricate line plot using dummy data.
+          <sl-tab-group>
+            <sl-tab slot="nav" panel="general">Output</sl-tab>
+            <sl-tab slot="nav" panel="custom">Source</sl-tab>
+
+            <sl-tab-panel name="general">
+              <div id="example_1" class="small-container"></div>
+              <py-script
+                output="example_1"
+                src="./src/example_1.py"
+              ></py-script>
+            </sl-tab-panel>
+
+            <sl-tab-panel name="custom">
+              <sl-include src="./src/example_1.html"></sl-include>
+            </sl-tab-panel>
+          </sl-tab-group>
+        </sl-details>
       </sl-details>
 
-      <script>
-        const container = document.querySelector(".details-group-example");
-
-        container.addEventListener("sl-show", (event) => {
-          [...container.querySelectorAll("sl-details")].map(
-            (details) => (details.open = event.target === details)
-          );
-        });
-      </script>
-
       <style>
-        .details-group-example sl-details {
+        sl-details {
           margin-bottom: var(--sl-spacing-2x-small);
         }
       </style>
     </div>
-    <style>
-      sl-details {
-        margin-bottom: 2rem;
-      }
-    </style>
   </body>
 </html>
