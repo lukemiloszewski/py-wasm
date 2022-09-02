@@ -28,16 +28,20 @@
       - matplotlib
     </py-env>
   </head>
-  <body class="small-container">
+  <body>
     <div class="small-container">
       <h1 class="text-center">PY-WASM</h1>
       <hr />
       <p>
-        PyScript uses Pyodide, a CPython interpreter compiled with emscripten to
-        WebAssembly. This allows you to run Python in the browser! 🐍
+        PyScript is a framework that leverages Pyodide, WebAssembly and modern
+        web technologies to run Python in the browser! 🐍
       </p>
 
       <sl-details summary="REPL">
+        <p class="no-margin">
+          This shell has been initialised with the Python standard library,
+          matplotlib and pandas.
+        </p>
         <sl-tab-group>
           <sl-tab slot="nav" panel="shell">Shell</sl-tab>
           <sl-tab slot="nav" panel="shortcuts">Shortcuts</sl-tab>
